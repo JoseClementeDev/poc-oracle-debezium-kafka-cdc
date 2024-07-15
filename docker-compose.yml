@@ -124,8 +124,8 @@ services:
       # - ${PWD}/oradata:/opt/oracle/oradata
       - /mnt/d/DockerVolumes/oracle-19c/oradata/:/opt/oracle/oradata:rw
       - /mnt/d/DockerVolumes/oracle-19c/oradata/recovery_area:/opt/oracle/oradata/recovery_area:rw
-      - ${PWD}/ora-setup-scripts:/opt/oracle/scripts/setup
-      # - ${PWD}/ora-startup-scripts:/opt/oracle/scripts/startup
+      - ${PWD}/resources/oracle-setup-scripts:/opt/oracle/scripts/setup
+      # - ${PWD}/resources/oracle-startup-scripts:/opt/oracle/scripts/startup
 
   # Sinks DB's
   postgres:
