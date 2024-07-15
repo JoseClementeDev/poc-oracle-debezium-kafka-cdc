@@ -1,0 +1,19 @@
+{
+    "name": "source-oracle-customer-connector",
+    "config": {
+        "connector.class": "io.debezium.connector.oracle.OracleConnector",
+        "tasks.max": 1,
+        "topic.prefix": "oracle1",
+        "database.hostname": "oracle",
+        "database.port": "1521",
+        "database.user": "c##dbzuser",
+        "database.password": "dbz",
+        "database.dbname": "ORCLCDB",
+        "database.pdb.name": "ORCLPDB1",
+        "database.connection.adapter": "logminer",
+        "table.include.list": "DEBEZIUM.CUSTOMERS",
+        "snapshot.mode": "initial",
+        "schema.history.internal.kafka.topic": "schema-changes.inventory",
+        "schema.history.internal.kafka.bootstrap.servers": "broker1:9091,broker2:9092,broker3:9094"
+    }
+}

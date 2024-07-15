@@ -1,0 +1,17 @@
+{
+  "name": "sink-mssql-customer-connector",
+  "config": {
+    "connector.class": "io.debezium.connector.jdbc.JdbcSinkConnector",
+    "tasks.max": "1",
+    "topics": "oracle1.DEBEZIUM.CUSTOMERS",
+    "connection.url": "jdbc:sqlserver://mssql:1433;encrypt=false",
+    "connection.username": "sa",
+    "connection.password": "Admin123",
+    "insert.mode": "upsert",
+    "delete.enabled": "true",
+    "primary.key.mode": "record_key",
+    "primary.key.fields": "id",
+    "schema.evolution": "basic",
+    "table.name.format": "dbo.${source.schema}_${source.table}"
+  }
+}
