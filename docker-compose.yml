@@ -1,66 +1,69 @@
 # version: '3.8'
 services:
   broker1:
-    image: 'bitnami/kafka:latest'
+    image: "bitnami/kafka:latest"
     container_name: broker1
     networks:
       - kafka-network
     ports:
       - "9091:9092"
+      - "19091:19091"
     environment:
       KAFKA_ENABLE_KRAFT: yes
-      KAFKA_CFG_PROCESS_ROLES: 'broker,controller'
-      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
-      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
-      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
-      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://broker1:9092
+      KAFKA_CFG_PROCESS_ROLES: "broker,controller"
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:19091
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://broker1:9092,EXTERNAL://localhost:19091
       KAFKA_CFG_BROKER_ID: 1
       KAFKA_CFG_NODE_ID: 1
-      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: '1@broker1:9093,2@broker2:9093,3@broker3:9093'
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: "1@broker1:9093,2@broker2:9093,3@broker3:9093"
       ALLOW_PLAINTEXT_LISTENER: yes
       KAFKA_KRAFT_CLUSTER_ID: 9Fe32R9TTRCr2cVolz95pw
     volumes:
       - ${PWD}/broker1:/bitnami/kafka
 
   broker2:
-    image: 'bitnami/kafka:latest'
+    image: "bitnami/kafka:latest"
     container_name: broker2
     networks:
       - kafka-network
     ports:
       - "9092:9092"
+      - "19092:19092"
     environment:
       KAFKA_ENABLE_KRAFT: yes
-      KAFKA_CFG_PROCESS_ROLES: 'broker,controller'
-      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
-      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
-      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
-      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://broker2:9092
+      KAFKA_CFG_PROCESS_ROLES: "broker,controller"
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:19092
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://broker2:9092,EXTERNAL://localhost:19092
       KAFKA_CFG_BROKER_ID: 2
       KAFKA_CFG_NODE_ID: 2
-      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: '1@broker1:9093,2@broker2:9093,3@broker3:9093'
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: "1@broker1:9093,2@broker2:9093,3@broker3:9093"
       ALLOW_PLAINTEXT_LISTENER: yes
       KAFKA_KRAFT_CLUSTER_ID: 9Fe32R9TTRCr2cVolz95pw
     volumes:
       - ${PWD}/broker2:/bitnami/kafka
 
   broker3:
-    image: 'bitnami/kafka:latest'
+    image: "bitnami/kafka:latest"
     container_name: broker3
     networks:
       - kafka-network
     ports:
       - "9094:9092"
+      - "19094:19094"
     environment:
       KAFKA_ENABLE_KRAFT: yes
-      KAFKA_CFG_PROCESS_ROLES: 'broker,controller'
-      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
-      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
-      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
-      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://broker3:9092
+      KAFKA_CFG_PROCESS_ROLES: "broker,controller"
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:19094
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://broker3:9092,EXTERNAL://localhost:19094
       KAFKA_CFG_BROKER_ID: 3
       KAFKA_CFG_NODE_ID: 3
-      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: '1@broker1:9093,2@broker2:9093,3@broker3:9093'
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: "1@broker1:9093,2@broker2:9093,3@broker3:9093"
       ALLOW_PLAINTEXT_LISTENER: yes
       KAFKA_KRAFT_CLUSTER_ID: 9Fe32R9TTRCr2cVolz95pw
     volumes:
@@ -68,7 +71,7 @@ services:
 
   kafka-ui:
     container_name: kafka-ui
-    image: 'provectuslabs/kafka-ui:latest'
+    image: "provectuslabs/kafka-ui:latest"
     networks:
       - kafka-network
     depends_on:
@@ -78,7 +81,7 @@ services:
     ports:
       - "8081:8080"
     environment:
-      KAFKA_CLUSTERS_0_BOOTSTRAP_SERVERS: 'broker1:9091,broker2:9092,broker3:9094'
+      KAFKA_CLUSTERS_0_BOOTSTRAP_SERVERS: "broker1:9091,broker2:9092,broker3:9094"
       KAFKA_CLUSTERS_0_NAME: kafka-cluster
 
   debezium-connect:
@@ -124,7 +127,7 @@ services:
       # - ${PWD}/oradata:/opt/oracle/oradata
       - /mnt/d/DockerVolumes/oracle-19c/oradata/:/opt/oracle/oradata:rw
       - /mnt/d/DockerVolumes/oracle-19c/oradata/recovery_area:/opt/oracle/oradata/recovery_area:rw
-      - ${PWD}/resources/oracle-setup-scripts:/opt/oracle/scripts/setup
+      # - ${PWD}/resources/oracle-setup-scripts:/opt/oracle/scripts/setup
       # - ${PWD}/resources/oracle-startup-scripts:/opt/oracle/scripts/startup
 
   # Sinks DB's
@@ -156,16 +159,16 @@ services:
     # To connect to the DB:
     #   docker exec -it mssql bash -c '/opt/mssql-tools/bin/sqlcmd -l 30 -S localhost -U sa -P $SA_PASSWORD'
     # *-----------------------------*
-    image: mcr.microsoft.com/mssql/server:latest
+    image: mcr.microsoft.com/mssql/server:2019-latest
     container_name: mssql
     networks:
       - kafka-network
     ports:
       - "1433:1433"
     environment:
-      - SA_PASSWORD=Admin123  # Password for the MSSQL database
-      - ACCEPT_EULA=Y         # Accept End-User License Agreement for MSSQL
-      - MSSQL_PID=Standard     # MSSQL Server edition (e.g., Standard, Enterprise)
+      - SA_PASSWORD=Admin123 # Password for the MSSQL database
+      - ACCEPT_EULA=Y # Accept End-User License Agreement for MSSQL
+      - MSSQL_PID=Standard # MSSQL Server edition (e.g., Standard, Enterprise)
       - MSSQL_AGENT_ENABLED=true # Enable SQL Server Agent
     links:
       - broker1
