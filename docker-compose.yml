@@ -1,186 +1,211 @@
-# version: '3.8'
 services:
-  broker1:
-    image: "bitnami/kafka:latest"
-    container_name: broker1
-    networks:
-      - kafka-network
-    ports:
-      - "9091:9092"
-      - "19091:19091"
+  controller-1:
+    image: apache/kafka:latest
+    container_name: controller-1
     environment:
-      KAFKA_ENABLE_KRAFT: yes
-      KAFKA_CFG_PROCESS_ROLES: "broker,controller"
-      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
-      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:19091
-      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
-      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://broker1:9092,EXTERNAL://localhost:19091
-      KAFKA_CFG_BROKER_ID: 1
-      KAFKA_CFG_NODE_ID: 1
-      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: "1@broker1:9093,2@broker2:9093,3@broker3:9093"
-      ALLOW_PLAINTEXT_LISTENER: yes
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: controller
+      KAFKA_LISTENERS: "CONTROLLER://:9093"
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@controller-1:9093,2@controller-2:9093"
       KAFKA_KRAFT_CLUSTER_ID: 9Fe32R9TTRCr2cVolz95pw
-    volumes:
-      - ${PWD}/broker1:/bitnami/kafka
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+    # volumes:
+    #   - controller_1_data:/var/lib/kafka/data
+    networks:
+      - kafka-net
 
-  broker2:
-    image: "bitnami/kafka:latest"
-    container_name: broker2
-    networks:
-      - kafka-network
-    ports:
-      - "9092:9092"
-      - "19092:19092"
+  controller-2:
+    image: apache/kafka:latest
+    container_name: controller-2
     environment:
-      KAFKA_ENABLE_KRAFT: yes
-      KAFKA_CFG_PROCESS_ROLES: "broker,controller"
-      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
-      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:19092
-      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
-      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://broker2:9092,EXTERNAL://localhost:19092
-      KAFKA_CFG_BROKER_ID: 2
-      KAFKA_CFG_NODE_ID: 2
-      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: "1@broker1:9093,2@broker2:9093,3@broker3:9093"
-      ALLOW_PLAINTEXT_LISTENER: yes
+      KAFKA_NODE_ID: 2
+      KAFKA_PROCESS_ROLES: controller
+      KAFKA_LISTENERS: "CONTROLLER://:9093"
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@controller-1:9093,2@controller-2:9093"
       KAFKA_KRAFT_CLUSTER_ID: 9Fe32R9TTRCr2cVolz95pw
-    volumes:
-      - ${PWD}/broker2:/bitnami/kafka
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+    # volumes:
+    #   - controller_2_data:/var/lib/kafka/data
+    networks:
+      - kafka-net
 
-  broker3:
-    image: "bitnami/kafka:latest"
-    container_name: broker3
-    networks:
-      - kafka-network
-    ports:
-      - "9094:9092"
-      - "19094:19094"
+  broker-1:
+    image: apache/kafka:latest
+    container_name: broker-1
     environment:
-      KAFKA_ENABLE_KRAFT: yes
-      KAFKA_CFG_PROCESS_ROLES: "broker,controller"
-      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
-      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:19094
-      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
-      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://broker3:9092,EXTERNAL://localhost:19094
-      KAFKA_CFG_BROKER_ID: 3
-      KAFKA_CFG_NODE_ID: 3
-      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: "1@broker1:9093,2@broker2:9093,3@broker3:9093"
-      ALLOW_PLAINTEXT_LISTENER: yes
+      KAFKA_NODE_ID: 3
+      KAFKA_PROCESS_ROLES: broker
+      KAFKA_LISTENERS: "PLAINTEXT://:19092,PLAINTEXT_HOST://:9092"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://broker-1:19092,PLAINTEXT_HOST://localhost:29092"
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@controller-1:9093,2@controller-2:9093"
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       KAFKA_KRAFT_CLUSTER_ID: 9Fe32R9TTRCr2cVolz95pw
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 2
+      KAFKA_MIN_INSYNC_REPLICAS: 1
+      # KAFKA_LOG_DIRS: /var/lib/kafka/data
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
     volumes:
-      - ${PWD}/broker3:/bitnami/kafka
+      - broker_1_data:/var/lib/kafka/data
+    ports:
+      - 29092:9092
+    networks:
+      - kafka-net
+    depends_on:
+      - controller-1
+      - controller-2
+
+  broker-2:
+    image: apache/kafka:latest
+    # hostname: broker-2
+    container_name: broker-2
+    environment:
+      KAFKA_NODE_ID: 4
+      KAFKA_PROCESS_ROLES: broker
+      KAFKA_LISTENERS: "PLAINTEXT://:19092,PLAINTEXT_HOST://:9092"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://broker-2:19092,PLAINTEXT_HOST://localhost:39092"
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@controller-1:9093,2@controller-2:9093"
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_KRAFT_CLUSTER_ID: 9Fe32R9TTRCr2cVolz95pw
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 2
+      KAFKA_MIN_INSYNC_REPLICAS: 1
+      # KAFKA_LOG_DIRS: /var/lib/kafka/data
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
+    volumes:
+      - broker_2_data:/var/lib/kafka/data
+    ports:
+      - 39092:9092
+    networks:
+      - kafka-net
+    depends_on:
+      - controller-1
+      - controller-2
+
+  connect:
+    container_name: connect
+    image: debezium/connect:2.7
+    environment:
+      GROUP_ID: 1
+      BOOTSTRAP_SERVERS: broker-1:19092,broker-2:19092
+      CONFIG_STORAGE_TOPIC: _connect_configs
+      OFFSET_STORAGE_TOPIC: _connect_offsets
+      STATUS_STORAGE_TOPIC: _connect_statuses
+      CONNECT_REST_ADVERTISED_HOST_NAME: connect
+      CONFIG_STORAGE_REPLICATION_FACTOR: 2
+      OFFSET_STORAGE_REPLICATION_FACTOR: 2
+      STATUS_STORAGE_REPLICATION_FACTOR: 2
+      KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      KEY_CONVERTER_SCHEMAS_ENABLE: "false"
+      VALUE_CONVERTER_SCHEMAS_ENABLE: "false"
+      CONNECT_REST_PORT: 8083
+      ENABLE_DEBEZIUM_KC_REST_EXTENSION: true
+      ENABLE_DEBEZIUM_SCRIPTING: true
+      CONNECT_REST_EXTENSION_CLASSES: io.debezium.kcrestextension.DebeziumConnectRestExtension
+    ports:
+      - "8083:8083"
+    # volumes:
+    #   - connect_data:/kafka/connect
+    networks:
+      - kafka-net
+    depends_on:
+      - oracle
+      - postgres
+      - sqlserver
+      - broker-1
+      - broker-2
+
+  debezium-ui:
+    container_name: debezium-ui
+    image: debezium/debezium-ui:latest
+    ports:
+      - "8080:8080"
+    environment:
+      - KAFKA_CONNECT_URIS=http://connect:8083
+    depends_on:
+      - connect
+    networks:
+      - kafka-net
 
   kafka-ui:
     container_name: kafka-ui
-    image: "provectuslabs/kafka-ui:latest"
-    networks:
-      - kafka-network
-    depends_on:
-      - broker1
-      - broker2
-      - broker3
-    ports:
-      - "8081:8080"
+    image: provectuslabs/kafka-ui:latest
     environment:
-      KAFKA_CLUSTERS_0_BOOTSTRAP_SERVERS: "broker1:9091,broker2:9092,broker3:9094"
-      KAFKA_CLUSTERS_0_NAME: kafka-cluster
+      KAFKA_CLUSTERS_0_NAME: "kafka-cluster"
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: "broker-1:19092,broker-2:19092"
+      KAFKA_CLUSTERS_0_CONNECT_URL: "http://connect:8083"
+      KAFKA_CLUSTERS_0_KAFKACONNECT_0_NAME: _connect
+      KAFKA_CLUSTERS_0_KAFKACONNECT_0_ADDRESS: http://connect:8083
+    ports:
+      - "9080:8080"
+    networks:
+      - kafka-net
 
-  debezium-connect:
-    image: debezium/connect:2.7
-    container_name: connect
-    networks:
-      - kafka-network
-    ports:
-      - 8083:8083
-    environment:
-      CONFIG_STORAGE_TOPIC: source_connect_configs
-      OFFSET_STORAGE_TOPIC: source_connect_offsets
-      STATUS_STORAGE_TOPIC: source_connect_statuses
-      BOOTSTRAP_SERVERS: broker1:9091,broker2:9092,broker3:9094
-      GROUP_ID: 1
-    links:
-      - oracle
-      - postgres
-      - mssql
-      - broker1
-      - broker2
-      - broker3
-    depends_on:
-      - oracle
-      - postgres
-      - mssql
-      - broker1
-      - broker2
-      - broker3
-  # Source DB's
   oracle:
-    image: container-registry.oracle.com/database/enterprise:19.3.0.0
     container_name: oracle
-    networks:
-      - kafka-network
+    image: doctorkirk/oracle-19c:19.3
     environment:
-      - ORACLE_PDB=ORCLPDB1
-      - ORACLE_PWD=top_secret
-      - ORACLE_EDITION=standard
-    ports:
-      - 1521:1521
+      - ORACLE_SID=orcl
+      - ORACLE_PWD=Pass1234
     volumes:
-      # - ${PWD}/oradata:/opt/oracle/oradata
-      - /mnt/d/DockerVolumes/oracle-19c/oradata/:/opt/oracle/oradata:rw
-      - /mnt/d/DockerVolumes/oracle-19c/oradata/recovery_area:/opt/oracle/oradata/recovery_area:rw
-      # - ${PWD}/resources/oracle-setup-scripts:/opt/oracle/scripts/setup
-      # - ${PWD}/resources/oracle-startup-scripts:/opt/oracle/scripts/startup
+      - oracle_data:/opt/oracle/oradata
+      - ${PWD}/resources/oracle-setup-scripts:/opt/oracle/scripts/setup
+    ports:
+      - "1521:1521"
+    networks:
+      - kafka-net
 
-  # Sinks DB's
   postgres:
-    # *-----------------------------*
-    # To connect to the DB:
-    #   docker exec -it postgres bash -c 'psql -U $POSTGRES_USER $POSTGRES_DB'
-    # *-----------------------------*
+    container_name: postgress
     image: postgres:latest
-    container_name: postgres
-    networks:
-      - kafka-network
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      POSTGRES_DB: postgres
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: Pass1234
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     ports:
-      - 5432:5432
-    links:
-      - broker1
-      - broker2
-      - broker3
-    depends_on:
-      - broker1
-      - broker2
-      - broker3
+      - "5432:5432"
+    networks:
+      - kafka-net
 
-  mssql:
-    # *----------------------------
-    # To connect to the DB:
-    #   docker exec -it mssql bash -c '/opt/mssql-tools/bin/sqlcmd -l 30 -S localhost -U sa -P $SA_PASSWORD'
-    # *-----------------------------*
+  sqlserver:
+    container_name: sqlserver
     image: mcr.microsoft.com/mssql/server:2019-latest
-    container_name: mssql
-    networks:
-      - kafka-network
-    ports:
-      - "1433:1433"
     environment:
-      - SA_PASSWORD=Admin123 # Password for the MSSQL database
+      - SA_PASSWORD=Pass1234 # Password for the MSSQL database
       - ACCEPT_EULA=Y # Accept End-User License Agreement for MSSQL
       - MSSQL_PID=Standard # MSSQL Server edition (e.g., Standard, Enterprise)
       - MSSQL_AGENT_ENABLED=true # Enable SQL Server Agent
-    links:
-      - broker1
-      - broker2
-      - broker3
-    depends_on:
-      - broker1
-      - broker2
-      - broker3
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    ports:
+      - "1433:1433"
+    networks:
+      - kafka-net
 
 networks:
-  kafka-network:
-    name: kafka-network
+  kafka-net:
     driver: bridge
-    # Other Systems
+
+volumes:
+  # controller_1_data:
+  # controller_2_data:
+  broker_1_data:
+  broker_2_data:
+  # connect_data:
+  oracle_data:
+  postgres_data:
+  sqlserver_data:
