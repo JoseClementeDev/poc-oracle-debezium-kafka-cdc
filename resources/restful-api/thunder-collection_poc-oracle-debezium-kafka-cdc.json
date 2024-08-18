@@ -1,0 +1,186 @@
+{
+    "clientName": "Thunder Client",
+    "collectionName": "poc-oracle-debezium-kafka-cdc",
+    "collectionId": "dd82157d-7a3d-405d-bf46-9f5988ac4865",
+    "dateExported": "2024-08-18T20:24:56.518Z",
+    "version": "1.2",
+    "folders": [
+        {
+            "_id": "e84824fb-d2a1-49db-a9c4-96c6c0bf14b3",
+            "name": "Source Connectors",
+            "containerId": "",
+            "created": "2024-08-12T00:38:15.230Z",
+            "sortNum": 10000
+        },
+        {
+            "_id": "0b118a78-e3b4-4436-ac26-dd63a5d5c852",
+            "name": "Sink Connectors",
+            "containerId": "",
+            "created": "2024-08-12T00:38:53.072Z",
+            "sortNum": 20000
+        }
+    ],
+    "requests": [
+        {
+            "_id": "00d69fc2-40a2-4f08-a883-e986bc602b74",
+            "colId": "dd82157d-7a3d-405d-bf46-9f5988ac4865",
+            "containerId": "0b118a78-e3b4-4436-ac26-dd63a5d5c852",
+            "name": "createPostgresSinkConnector",
+            "url": "http://localhost:8083/connectors",
+            "method": "POST",
+            "sortNum": 5000,
+            "created": "2024-08-18T16:46:46.720Z",
+            "modified": "2024-08-18T19:20:17.496Z",
+            "headers": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n    \"name\": \"sink-postgresql-customer-connector\",\n    \"config\": {\n        \"connector.class\": \"io.debezium.connector.jdbc.JdbcSinkConnector\",\n        \"tasks.max\": \"1\",\n        \"connection.url\": \"jdbc:postgresql://postgres:5432/postgres\",\n        \"connection.username\": \"admin\",\n        \"connection.password\": \"Pass1234\",\n        \"insert.mode\": \"upsert\",\n        \"delete.enabled\": \"true\",\n        \"primary.key.mode\": \"record_key\",\n        \"schema.evolution\": \"basic\",\n        \"primary.key.fields\": \"CUSTOMER_ID\",\n        \"database.time_zone\": \"UTC\",\n        \"topics\": \"oracle_db.OT.CUSTOMERS\"\n    }\n}\n",
+                "form": []
+            }
+        },
+        {
+            "_id": "297f2864-1510-4917-9b65-5dc914cafbe9",
+            "colId": "dd82157d-7a3d-405d-bf46-9f5988ac4865",
+            "containerId": "0b118a78-e3b4-4436-ac26-dd63a5d5c852",
+            "name": "createSqlServerSinkConnector",
+            "url": "http://localhost:8083/connectors",
+            "method": "POST",
+            "sortNum": 7500,
+            "created": "2024-08-18T17:35:51.455Z",
+            "modified": "2024-08-18T18:02:35.657Z",
+            "headers": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"name\": \"sink-sqlserver-customer-connector\",\n  \"config\": {\n    \"connector.class\": \"io.debezium.connector.jdbc.JdbcSinkConnector\",\n    \"tasks.max\": \"1\",\n    \"topics\": \"oracle_db.OT.CUSTOMERS\",\n    \"connection.url\": \"jdbc:sqlserver://sqlserver:1433;encrypt=false\",\n    \"connection.username\": \"sa\",\n    \"connection.password\": \"Pass1234\",\n    \"insert.mode\": \"upsert\",\n    \"delete.enabled\": \"true\",\n    \"primary.key.mode\": \"record_key\",\n    \"primary.key.fields\": \"CUSTOMER_ID\",\n    \"schema.evolution\": \"basic\",\n    \"table.name.format\": \"dbo.${source.schema}_${source.table}\"\n  }\n}",
+                "form": []
+            }
+        },
+        {
+            "_id": "1a07b1ca-f4de-42e6-b24f-eef7cbc8810b",
+            "colId": "dd82157d-7a3d-405d-bf46-9f5988ac4865",
+            "containerId": "",
+            "name": "getConnectors",
+            "url": "http://localhost:8083/connectors",
+            "method": "GET",
+            "sortNum": 10000,
+            "created": "2024-08-11T20:45:19.829Z",
+            "modified": "2024-08-11T20:46:15.893Z",
+            "headers": []
+        },
+        {
+            "_id": "ca7a76aa-0f80-449d-b653-88e467b4f496",
+            "colId": "dd82157d-7a3d-405d-bf46-9f5988ac4865",
+            "containerId": "e84824fb-d2a1-49db-a9c4-96c6c0bf14b3",
+            "name": "createOracleSourceConnector",
+            "url": "http://localhost:8083/connectors",
+            "method": "POST",
+            "sortNum": 10000,
+            "created": "2024-08-11T20:57:29.428Z",
+            "modified": "2024-08-18T19:18:37.086Z",
+            "headers": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n    \"name\": \"source-oracle-customer-connector\",\n    \"config\": {\n        \"connector.class\": \"io.debezium.connector.oracle.OracleConnector\",\n        \"tasks.max\": 1,\n        \"topic.prefix\": \"oracle_db\",\n        \"database.hostname\": \"oracle\",\n        \"database.port\": \"1521\",\n        \"database.user\": \"cdc_user\",\n        \"database.password\": \"cdc123\",\n        \"database.dbname\": \"ORCL\",\n        \"database.connection.adapter\": \"logminer\",\n        \"table.include.list\": \"OT.CUSTOMERS\",\n        \"snapshot.mode\": \"initial\",\n        \"schema.history.internal.kafka.topic\": \"schema-changes.oracle_db\",\n        \"schema.history.internal.kafka.bootstrap.servers\": \"broker-1:19092,broker-2:19092\"\n    }\n}",
+                "form": []
+            }
+        },
+        {
+            "_id": "b489b352-e3ff-4bab-b963-a11d3f04d50d",
+            "colId": "dd82157d-7a3d-405d-bf46-9f5988ac4865",
+            "containerId": "0b118a78-e3b4-4436-ac26-dd63a5d5c852",
+            "name": "deletePostgresSinkConnector",
+            "url": "http://localhost:8083/connectors/source-postgres-connector",
+            "method": "DELETE",
+            "sortNum": 10000,
+            "created": "2024-08-12T01:07:16.133Z",
+            "modified": "2024-08-12T01:07:31.503Z",
+            "headers": []
+        },
+        {
+            "_id": "98a1dfec-cd15-443f-b350-e4ef8cd688da",
+            "colId": "dd82157d-7a3d-405d-bf46-9f5988ac4865",
+            "containerId": "e84824fb-d2a1-49db-a9c4-96c6c0bf14b3",
+            "name": "updateOracleSourceConnector",
+            "url": "http://localhost:8083/connectors/oracle-source-connector/config",
+            "method": "PUT",
+            "sortNum": 16250,
+            "created": "2024-08-11T21:11:16.181Z",
+            "modified": "2024-08-18T17:05:06.982Z",
+            "headers": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n    \"connector.class\": \"io.debezium.connector.oracle.OracleConnector\",\n    \"tasks.max\": 1,\n    \"topic.prefix\": \"oracle_db\",\n    \"database.hostname\": \"oracle\",\n    \"database.port\": \"1521\",\n    \"database.user\": \"cdc_user\",\n    \"database.password\": \"cdc123\",\n    \"database.dbname\": \"ORCL\",\n    \"database.connection.adapter\": \"logminer\",\n    \"table.include.list\": \"OT.CUSTOMERS,OT.EMPLOYEES\",\n    \"snapshot.mode\": \"initial\",\n    \"schema.history.internal.kafka.topic\": \"schema-changes.oracle_db\",\n    \"schema.history.internal.kafka.bootstrap.servers\": \"broker-1:19092,broker-2:19092\"\n}",
+                "form": []
+            }
+        },
+        {
+            "_id": "a04dc8a2-3b29-4aed-9445-bd72fd5237aa",
+            "colId": "dd82157d-7a3d-405d-bf46-9f5988ac4865",
+            "containerId": "",
+            "name": "getConnectorPlugins",
+            "url": "http://localhost:8083/connector-plugins",
+            "method": "GET",
+            "sortNum": 20000,
+            "created": "2024-08-11T20:52:51.855Z",
+            "modified": "2024-08-11T20:54:58.693Z",
+            "headers": []
+        },
+        {
+            "_id": "c84357a8-41a2-483e-b90e-b9803cc85aff",
+            "colId": "dd82157d-7a3d-405d-bf46-9f5988ac4865",
+            "containerId": "0b118a78-e3b4-4436-ac26-dd63a5d5c852",
+            "name": "deleteSqlServerSinkConnector",
+            "url": "http://localhost:8083/connectors/sink-sqlserver-customer-connector",
+            "method": "DELETE",
+            "sortNum": 20000,
+            "created": "2024-08-18T16:53:38.226Z",
+            "modified": "2024-08-18T17:58:59.876Z",
+            "headers": []
+        },
+        {
+            "_id": "eac77f7b-c610-46da-aba4-a8254153c4c0",
+            "colId": "dd82157d-7a3d-405d-bf46-9f5988ac4865",
+            "containerId": "e84824fb-d2a1-49db-a9c4-96c6c0bf14b3",
+            "name": "deleteOracleSourceConnector",
+            "url": "http://localhost:8083/connectors/source-oracle-customer-connector",
+            "method": "DELETE",
+            "sortNum": 22500,
+            "created": "2024-08-11T21:14:55.791Z",
+            "modified": "2024-08-11T21:15:05.423Z",
+            "headers": []
+        },
+        {
+            "_id": "c2102f43-57e1-41df-ab9e-3497f1483a9d",
+            "colId": "dd82157d-7a3d-405d-bf46-9f5988ac4865",
+            "containerId": "e84824fb-d2a1-49db-a9c4-96c6c0bf14b3",
+            "name": "getOracleSourceConnectorTopics",
+            "url": "http://localhost:8083/connectors/source-oracle-customer-connector/topics",
+            "method": "GET",
+            "sortNum": 35000,
+            "created": "2024-08-15T01:24:56.038Z",
+            "modified": "2024-08-18T18:06:12.296Z",
+            "headers": []
+        },
+        {
+            "_id": "499877bb-e84b-4890-83ce-7c389838490a",
+            "colId": "dd82157d-7a3d-405d-bf46-9f5988ac4865",
+            "containerId": "e84824fb-d2a1-49db-a9c4-96c6c0bf14b3",
+            "name": "getOracleSourceConnectorStatus",
+            "url": "http://localhost:8083/connectors/source-oracle-customer-connector/status",
+            "method": "GET",
+            "sortNum": 51250,
+            "created": "2024-08-15T01:30:48.674Z",
+            "modified": "2024-08-18T18:06:20.866Z",
+            "headers": []
+        }
+    ],
+    "settings": {
+        "headers": [
+            {
+                "name": "Content-Type",
+                "value": "application/json"
+            }
+        ]
+    },
+    "ref": "FtFFn-UELi7quoVLgjyVkne06NohTqgY13bC-M5iE782lxuqswIqYDYHZKT7iToxWSb-B7DsVp9jyTFLz6WoRw"
+}
